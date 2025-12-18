@@ -32,4 +32,9 @@ export const setupUserMethods = (schema: Schema<IUser>) => {
   schema.methods.isActive = function (this: IUser): boolean {
     return !this.isBanned && this.isEmailVerified && !this.deletedAt;
   };
+
+  schema.methods.recordLogin = async function (this: IUser): Promise<void> {
+    this.lastLogin = new Date();
+    await this.save();
+  };
 };

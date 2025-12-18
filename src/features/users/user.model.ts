@@ -2,6 +2,8 @@ import mongoose, { Schema } from 'mongoose';
 import { UserRole } from '../../shared/enums/userRole';
 import { IUser, IAvatar, IResetPassword } from './user.interface';
 import { config } from '../../config';
+import { setupUserHooks } from './user.hooks';
+import { setupUserMethods } from  './user.methods';
 
 const AvatarSchema = new Schema<IAvatar>(
   {
@@ -86,13 +88,17 @@ const userSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
+    strict: true,
+    toObject: {
+      virtuals: true,
+    },
   }
 );
 
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ 'deletedAt': 1 }, { sparse: true });
 
-import './user.hooks';
-import './user.methods';
+setupUserHooks(userSchema);
+setupUserMethods(userSchema);
 
 export const User = mongoose.model<IUser>('User', userSchema);

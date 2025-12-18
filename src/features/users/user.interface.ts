@@ -17,6 +17,7 @@ export interface IUser extends IBaseDocument {
   comparePassword(candidatePassword: string): Promise<boolean>;
   toSafeJSON(): Record<string, any>;
   isActive(): boolean;
+  recordLogin(): Promise<void>;
 }
 
 export interface IAvatar {
