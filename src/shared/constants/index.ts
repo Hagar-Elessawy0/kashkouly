@@ -15,4 +15,13 @@ export const HTTP_STATUS = {
   GATEWAY_TIMEOUT: 504,
 } as const;
 
+export const PERMISSIONS = {
+  MANAGE_USERS: 'manage_users',
+  MANAGE_COURSES: 'manage_courses',
+  VIEW_REPORTS: 'view_reports',
+  MANAGE_TEACHERS: 'manage_teachers',
+  MANAGE_ADMINS: 'manage_admins',
+  IT_SUPPORT: 'it_support',
+} as const;
 
+export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];
