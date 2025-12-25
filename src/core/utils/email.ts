@@ -41,7 +41,7 @@ export const sendEmail = async (options: EmailOptions, purpose: EmailPurpose): P
     };
 
     await transporter.sendMail(mailOptions);
-    logger.info(`${purpose} sent successfully to ${options.to}`);
+    logger.info(`📧 ${purpose} sent successfully to ${options.to}`);
   } catch (error) {
     logger.error('Failed to send email:', error);
     throw error;

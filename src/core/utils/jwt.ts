@@ -3,6 +3,7 @@ import { AppError } from '../errors/appError';
 import { ErrorCodes } from '../errors/errorCodes';
 import { UserRole } from '../../shared/enums/userRole';
 import { config } from '../../config';
+import { HTTP_STATUS } from '../../shared/constants';
 
 export interface TokenPayload {
   id: string;
@@ -10,11 +11,12 @@ export interface TokenPayload {
   role: UserRole;
   isEmailVerified: boolean;
   isBanned: boolean;
+  tokenVersion: number;
 }
 
 export interface RefreshTokenPayload {
   id: string;
-  tokenVersion?: number;
+  tokenVersion: number;
 }
 
 const JWT_SECRET = config.jwt.secret;
@@ -51,7 +53,7 @@ export const verifyRefreshToken = (token: string): RefreshTokenPayload => {
 export const verifyEmailVerificationToken = (token: string): { id: string } => {
   const decoded = jwt.verify(token, JWT_SECRET) as { id: string; type: string };
   if (decoded.type !== 'email-verification') {
-    throw new AppError('Invalid token type', 400, ErrorCodes.TOKEN_INVALID);
+    throw new AppError('Invalid token type', HTTP_STATUS.UNAUTHORIZED, ErrorCodes.TOKEN_INVALID);
   }
   return { id: decoded.id };
 };

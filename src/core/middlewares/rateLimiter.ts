@@ -2,6 +2,7 @@ import rateLimit from 'express-rate-limit';
 import { sendErrorResponse } from '../utils/response';
 import { HTTP_STATUS } from '../../shared/constants/index';
 import { config } from '../../config';
+import { ErrorCodes } from '../errors/errorCodes';
 
 // General API rate limiter
 export const apiLimiter = rateLimit({
@@ -15,7 +16,7 @@ export const apiLimiter = rateLimit({
       res,
       HTTP_STATUS.TOO_MANY_REQUESTS,
       'Too many requests from this IP, please try again later',
-      'RATE_LIMIT_EXCEEDED'
+      ErrorCodes.RATE_LIMIT_EXCEEDED
     );
   },
   skip: (req) => {
@@ -40,7 +41,7 @@ export const authLimiter = rateLimit({
       res,
       HTTP_STATUS.TOO_MANY_REQUESTS,
       'Too many authentication attempts, please try again later',
-      'RATE_LIMIT_EXCEEDED'
+      ErrorCodes.RATE_LIMIT_EXCEEDED
     );
   },
 });
@@ -57,7 +58,27 @@ export const uploadLimiter = rateLimit({
       res,
       HTTP_STATUS.TOO_MANY_REQUESTS,
       'Too many upload requests, please try again later',
-      'RATE_LIMIT_EXCEEDED'
+      ErrorCodes.RATE_LIMIT_EXCEEDED
     );
   },
+});
+
+// Resend verification email rate limiter
+export const resendVerificationLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours
+  max: 1,
+  keyGenerator: (req) => {
+    return req.body.email || req.user?.email;
+  },
+  message: 'Too many requests. Please try again after 24 hours',
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    sendErrorResponse(
+      res,
+      HTTP_STATUS.TOO_MANY_REQUESTS,
+      'Email verification resend limit reached. Please try again in 24 hours',
+      ErrorCodes.RATE_LIMIT_EXCEEDED
+    );
+  }
 });
