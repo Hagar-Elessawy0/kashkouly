@@ -1,5 +1,0 @@
-paths:
-  $ref:
-    - ./health.yaml
-    - ./auth.yaml
-    - ./users.yaml

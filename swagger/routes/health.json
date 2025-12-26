@@ -1,0 +1,78 @@
+{
+  "/health": {
+    "get": {
+      "tags": [
+        "Health"
+      ],
+      "summary": "Health check endpoint",
+      "description": "Returns the health status of the API server",
+      "operationId": "healthCheck",
+      "security": [],
+      "responses": {
+        "200": {
+          "description": "Server is healthy and running",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "Server is healthy"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "ok"
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "uptime": {
+                        "type": "number",
+                        "description": "Server uptime in seconds"
+                      },
+                      "environment": {
+                        "type": "string",
+                        "example": "development"
+                      }
+                    }
+                  },
+                  "meta": {
+                    "type": "object",
+                    "properties": {
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "environment": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "503": {
+          "description": "Service unavailable",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../components.json#/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
