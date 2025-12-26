@@ -1,0 +1,133 @@
+schemas:
+  Avatar:
+    type: object
+    properties:
+      secure_url:
+        type: string
+        format: uri
+      public_id:
+        type: string
+        nullable: true
+    required:
+      - secure_url
+
+  User:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "507f1f77bcf86cd799439011"
+      name:
+        type: string
+        minLength: 2
+        maxLength: 50
+        example: "John Doe"
+      email:
+        type: string
+        format: email
+        example: "john.doe@example.com"
+      role:
+        type: string
+        enum: [admin, instructor, student]
+        example: "student"
+      isEmailVerified:
+        type: boolean
+        example: false
+      isBanned:
+        type: boolean
+        example: false
+      avatar:
+        $ref: '#/components/schemas/Avatar'
+      lastLogin:
+        type: string
+        format: date-time
+        nullable: true
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - email
+      - role
+      - isEmailVerified
+      - isBanned
+      - createdAt
+      - updatedAt
+
+  RegisterDTO:
+    type: object
+    properties:
+      name:
+        type: string
+        minLength: 2
+        maxLength: 50
+        example: "John Doe"
+      email:
+        type: string
+        format: email
+        example: "john.doe@example.com"
+      password:
+        type: string
+        minLength: 8
+        pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'
+        description: Must contain at least one uppercase letter, one lowercase letter, and one number
+        example: "Password123"
+      confirmPassword:
+        type: string
+        description: Must match password
+        example: "Password123"
+      role:
+        type: string
+        enum: [admin, instructor, student]
+        default: student
+        example: "student"
+    required:
+      - name
+      - email
+      - password
+      - confirmPassword
+
+  LoginDTO:
+    type: object
+    properties:
+      email:
+        type: string
+        format: email
+        example: "john.doe@example.com"
+      password:
+        type: string
+        example: "Password123"
+    required:
+      - email
+      - password
+
+  ForgotPasswordDTO:
+    type: object
+    properties:
+      email:
+        type: string
+        format: email
+        example: "john.doe@example.com"
+    required:
+      - email
+
+  ResetPasswordDTO:
+    type: object
+    properties:
+      newPassword:
+        type: string
+        minLength: 8
+        pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'
+        description: Must contain at least one uppercase letter, one lowercase letter, and one number
+        example: "NewPassword123"
+      confirmNewPassword:
+        type: string
+        description: Must match newPassword
+        example: "NewPassword123"
+    required:
+      - newPassword
+      - confirmNewPassword

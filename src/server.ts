@@ -20,6 +20,7 @@ const startServer = async (): Promise<void> => {
     server.listen(config.port, () => {
       logger.info(`🚀 Server running on port ${config.port} in ${config.env} mode`);
       logger.info(`📡 API available at ${config.backend.url}:${config.port}${config.apiVersion}`);
+      logger.info(`📄 Swagger docs available at ${config.backend.url}:${config.port}/api-docs`);
     });
 
     // Graceful shutdown

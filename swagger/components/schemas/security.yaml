@@ -1,0 +1,6 @@
+securitySchemes:
+  BearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+    description: JWT access token obtained from login or register endpoint

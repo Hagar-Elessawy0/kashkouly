@@ -1,0 +1,616 @@
+openapi: 3.0.0
+info:
+  title: 'Educational Platform API'
+  version: 1.0.0
+  description: "Comprehensive API documentation for the Educational Platform backend server.\n\n## Authentication\nMost endpoints require authentication via Bearer token in the Authorization header:\n```\nAuthorization: Bearer <your_access_token>\n```\n\n## Response Format\nAll responses follow a consistent structure:\n- Success: `{ success: true, message: string, data?: any, meta: { timestamp: string, ... } }`\n- Error: `{ success: false, message: string, error: { code: string, details?: any }, meta: { timestamp: string } }`\n"
+  contact:
+    name: 'API Support'
+    email: hagarbackend@gmail.com
+servers:
+  -
+    url: 'http://localhost:5000/api/v1'
+    description: 'Development server'
+  -
+    url: 'https://api.kashkouly.com/api/v1'
+    description: 'Production server'
+tags:
+  -
+    name: Health
+    description: 'Health check endpoints'
+  -
+    name: Authentication
+    description: 'User authentication and authorization'
+  -
+    name: Users
+    description: 'User management endpoints'
+security:
+  -
+    BearerAuth: []
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: 'Health check endpoint'
+      description: 'Returns the health status of the API server'
+      operationId: healthCheck
+      security: []
+      responses:
+        '200':
+          description: 'Server is healthy and running'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Server is healthy'}
+                  data: {type: object, properties: {status: {type: string, example: ok}, timestamp: {type: string, format: date-time}, uptime: {type: number, description: 'Server uptime in seconds'}, environment: {type: string, example: development}}}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}, environment: {type: string}}}
+        '503':
+          description: 'Service unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: 'Register a new user'
+      description: 'Create a new user account with email verification'
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDTO'
+      responses:
+        '201':
+          description: 'User registered successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Registration successful'}
+                  data: {type: object, properties: {user: {$ref: '#/components/schemas/User'}, accessToken: {type: string}, refreshToken: {type: string}}}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}}}
+        '400':
+          description: 'Invalid input or validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 'Email already exists'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: 'Login user'
+      description: 'Authenticate user and return access and refresh tokens'
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDTO'
+      responses:
+        '200':
+          description: 'Login successful'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Login successful'}
+                  data: {type: object, properties: {user: {$ref: '#/components/schemas/User'}, accessToken: {type: string}, refreshToken: {type: string}}}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}}}
+        '400':
+          description: 'Invalid credentials'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/refresh-token:
+    post:
+      tags:
+        - Authentication
+      summary: 'Refresh access token'
+      description: 'Generate a new access token using refresh token'
+      operationId: refreshToken
+      security: []
+      parameters:
+        -
+          $ref: '#/components/parameters/RefreshTokenCookie'
+      responses:
+        '200':
+          description: 'Token refreshed successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Token refreshed successfully'}
+                  data: {type: object, properties: {accessToken: {type: string}, refreshToken: {type: string}}}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}}}
+        '400':
+          description: 'Refresh token missing'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 'Invalid refresh token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/verify-email:
+    post:
+      tags:
+        - Authentication
+      summary: 'Verify email address'
+      description: 'Verify user email using verification token sent to email'
+      operationId: verifyEmail
+      security: []
+      parameters:
+        -
+          $ref: '#/components/parameters/TokenQuery'
+      responses:
+        '200':
+          description: 'Email verified successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Email verified successfully'}
+                  data: {type: object, nullable: true}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}}}
+        '400':
+          description: 'Invalid or expired token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/resend-verification:
+    post:
+      tags:
+        - Authentication
+      summary: 'Resend verification email'
+      description: 'Resend email verification link to authenticated user'
+      operationId: resendVerificationEmail
+      security:
+        -
+          BearerAuth: []
+      responses:
+        '200':
+          description: 'Verification email sent successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Verification email sent successfully'}
+                  data: {type: object, nullable: true}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}}}
+        '400':
+          description: 'Email already verified'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 'Too many requests'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: 'Request password reset'
+      description: 'Send password reset link to user email'
+      operationId: forgotPassword
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordDTO'
+      responses:
+        '200':
+          description: 'Password reset email sent'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Password reset email sent'}
+                  data: {type: object, nullable: true}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}}}
+        '404':
+          description: 'User not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: 'Reset password'
+      description: 'Reset user password using reset token'
+      operationId: resetPassword
+      security: []
+      parameters:
+        -
+          $ref: '#/components/parameters/TokenQuery'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordDTO'
+      responses:
+        '200':
+          description: 'Password reset successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Password reset successfully'}
+                  data: {type: object, nullable: true}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}}}
+        '400':
+          description: 'Invalid or expired token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: 'Logout user'
+      description: 'Invalidate refresh token and logout user'
+      operationId: logout
+      security:
+        -
+          BearerAuth: []
+      responses:
+        '200':
+          description: 'Logout successful'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Logout successful'}
+                  data: {type: object, nullable: true}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}}}
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/profile:
+    get:
+      tags:
+        - Authentication
+      summary: 'Get user profile'
+      description: 'Get authenticated user''s profile information'
+      operationId: getProfile
+      security:
+        -
+          BearerAuth: []
+      responses:
+        '200':
+          description: 'Profile retrieved successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: {type: boolean, example: true}
+                  message: {type: string, example: 'Profile retrieved successfully'}
+                  data: {type: object, properties: {user: {$ref: '#/components/schemas/User'}}}
+                  meta: {type: object, properties: {timestamp: {type: string, format: date-time}}}
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT access token obtained from login or register endpoint'
+  parameters:
+    PageQuery:
+      name: page
+      in: query
+      description: 'Page number for pagination'
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    LimitQuery:
+      name: limit
+      in: query
+      description: 'Number of items per page'
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+    IdPath:
+      name: id
+      in: path
+      description: 'Resource ID'
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{24}$'
+    TokenQuery:
+      name: token
+      in: query
+      description: 'Token string'
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    RefreshTokenCookie:
+      name: refreshToken
+      in: cookie
+      description: 'Refresh token (automatically sent from browser cookies)'
+      required: true
+      schema:
+        type: string
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: object
+        meta:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+            environment:
+              type: string
+      required:
+        - success
+        - message
+        - meta
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            details:
+              type: object
+        meta:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+            environment:
+              type: string
+      required:
+        - success
+        - message
+        - error
+        - meta
+    PaginationMeta:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        environment:
+          type: string
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+        totalItems:
+          type: integer
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+      required:
+        - timestamp
+        - page
+        - limit
+        - totalPages
+        - totalItems
+    Avatar:
+      type: object
+      properties:
+        secure_url:
+          type: string
+          format: uri
+        public_id:
+          type: string
+          nullable: true
+      required:
+        - secure_url
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          example: 'John Doe'
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        role:
+          type: string
+          enum:
+            - admin
+            - instructor
+            - student
+          example: student
+        isEmailVerified:
+          type: boolean
+          example: false
+        isBanned:
+          type: boolean
+          example: false
+        avatar:
+          $ref: '#/components/schemas/Avatar'
+        lastLogin:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - isEmailVerified
+        - isBanned
+        - createdAt
+        - updatedAt
+    RegisterDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          example: 'John Doe'
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        password:
+          type: string
+          minLength: 8
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'
+          description: 'Must contain at least one uppercase letter, one lowercase letter, and one number'
+          example: Password123
+        confirmPassword:
+          type: string
+          description: 'Must match password'
+          example: Password123
+        role:
+          type: string
+          enum:
+            - admin
+            - instructor
+            - student
+          default: student
+          example: student
+      required:
+        - name
+        - email
+        - password
+        - confirmPassword
+    LoginDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        password:
+          type: string
+          example: Password123
+      required:
+        - email
+        - password
+    ForgotPasswordDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+      required:
+        - email
+    ResetPasswordDTO:
+      type: object
+      properties:
+        newPassword:
+          type: string
+          minLength: 8
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'
+          description: 'Must contain at least one uppercase letter, one lowercase letter, and one number'
+          example: NewPassword123
+        confirmNewPassword:
+          type: string
+          description: 'Must match newPassword'
+          example: NewPassword123
+      required:
+        - newPassword
+        - confirmNewPassword

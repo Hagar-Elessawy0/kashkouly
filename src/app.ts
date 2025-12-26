@@ -10,6 +10,9 @@ import { apiRoutes } from './routes';
 import morgan from 'morgan';
 import { morganStream } from './core/utils/logger';
 import { notFound } from './core/middlewares/notFound';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import path from 'path';
 
 export const createApp = (): Application => {
   const app = express();
@@ -42,6 +45,13 @@ export const createApp = (): Application => {
 
   // Request logging
   app.use(requestLogger);
+
+  // Swagger documentation
+  const swaggerDocument = YAML.load(path.join(__dirname, '..', 'swagger', 'index.yaml'));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Kashkouly API Docs',
+  }));
 
   // API routes
   app.use(config.apiVersion, apiRoutes);

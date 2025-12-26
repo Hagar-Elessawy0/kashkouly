@@ -1,0 +1,422 @@
+/auth/register:
+  post:
+    tags:
+      - Authentication
+    summary: Register a new user
+    description: Create a new user account with email verification
+    operationId: register
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RegisterDTO'
+    responses:
+      '201':
+        description: User registered successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Registration successful"
+                data:
+                  type: object
+                  properties:
+                    user:
+                      $ref: '#/components/schemas/User'
+                    accessToken:
+                      type: string
+                    refreshToken:
+                      type: string
+                meta:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+      '400':
+        description: Invalid input or validation error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '409':
+        description: Email already exists
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/auth/login:
+  post:
+    tags:
+      - Authentication
+    summary: Login user
+    description: Authenticate user and return access and refresh tokens
+    operationId: login
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginDTO'
+    responses:
+      '200':
+        description: Login successful
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Login successful"
+                data:
+                  type: object
+                  properties:
+                    user:
+                      $ref: '#/components/schemas/User'
+                    accessToken:
+                      type: string
+                    refreshToken:
+                      type: string
+                meta:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+      '400':
+        description: Invalid credentials
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '401':
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/auth/refresh-token:
+  post:
+    tags:
+      - Authentication
+    summary: Refresh access token
+    description: Generate a new access token using refresh token
+    operationId: refreshToken
+    security: []
+    parameters:
+      - $ref: '#/components/parameters/RefreshTokenCookie'
+    responses:
+      '200':
+        description: Token refreshed successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Token refreshed successfully"
+                data:
+                  type: object
+                  properties:
+                    accessToken:
+                      type: string
+                    refreshToken:
+                      type: string
+                meta:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+      '400':
+        description: Refresh token missing
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '401':
+        description: Invalid refresh token
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/auth/verify-email:
+  post:
+    tags:
+      - Authentication
+    summary: Verify email address
+    description: Verify user email using verification token sent to email
+    operationId: verifyEmail
+    security: []
+    parameters:
+      - $ref: '#/components/parameters/TokenQuery'
+    responses:
+      '200':
+        description: Email verified successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Email verified successfully"
+                data:
+                  type: object
+                  nullable: true
+                meta:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+      '400':
+        description: Invalid or expired token
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/auth/resend-verification:
+  post:
+    tags:
+      - Authentication
+    summary: Resend verification email
+    description: Resend email verification link to authenticated user
+    operationId: resendVerificationEmail
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: Verification email sent successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Verification email sent successfully"
+                data:
+                  type: object
+                  nullable: true
+                meta:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+      '400':
+        description: Email already verified
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '401':
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '429':
+        description: Too many requests
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/auth/forgot-password:
+  post:
+    tags:
+      - Authentication
+    summary: Request password reset
+    description: Send password reset link to user email
+    operationId: forgotPassword
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForgotPasswordDTO'
+    responses:
+      '200':
+        description: Password reset email sent
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Password reset email sent"
+                data:
+                  type: object
+                  nullable: true
+                meta:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+      '404':
+        description: User not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/auth/reset-password:
+  post:
+    tags:
+      - Authentication
+    summary: Reset password
+    description: Reset user password using reset token
+    operationId: resetPassword
+    security: []
+    parameters:
+      - $ref: '#/components/parameters/TokenQuery'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResetPasswordDTO'
+    responses:
+      '200':
+        description: Password reset successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Password reset successfully"
+                data:
+                  type: object
+                  nullable: true
+                meta:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+      '400':
+        description: Invalid or expired token
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/auth/logout:
+  post:
+    tags:
+      - Authentication
+    summary: Logout user
+    description: Invalidate refresh token and logout user
+    operationId: logout
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: Logout successful
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Logout successful"
+                data:
+                  type: object
+                  nullable: true
+                meta:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+      '401':
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/auth/profile:
+  get:
+    tags:
+      - Authentication
+    summary: Get user profile
+    description: Get authenticated user's profile information
+    operationId: getProfile
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: Profile retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Profile retrieved successfully"
+                data:
+                  type: object
+                  properties:
+                    user:
+                      $ref: '#/components/schemas/User'
+                meta:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+      '401':
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
