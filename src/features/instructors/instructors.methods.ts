@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import { ITeacher, ITeacherModel } from './teacher.interface';
+import { ITeacher, ITeacherModel } from './instructors.interface';
 import { USER_EXCLUDED_FIELDS } from '../../shared/constants/selectedFields';
 import { Subject } from '../../shared/enums/subjects';
 

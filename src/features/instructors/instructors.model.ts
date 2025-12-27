@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
-import { ITeacher, ITeacherModel } from './teacher.interface';
-import { setupTeacherMethods } from './teacher.methods';
-import { setupTeacherHooks } from './teacher.hooks';
+import { ITeacher, ITeacherModel } from './instructors.interface';
+import { setupTeacherMethods } from './instructors.methods';
+import { setupTeacherHooks } from './instructors.hooks';
 import { Subject } from '../../shared/enums/subjects';
 
 const teacherSchema = new Schema<ITeacher, ITeacherModel>(

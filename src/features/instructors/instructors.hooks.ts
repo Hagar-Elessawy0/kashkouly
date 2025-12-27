@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { ITeacher, ITeacherModel } from './teacher.interface';
+import { ITeacher, ITeacherModel } from './instructors.interface';
 import logger from '../../core/utils/logger';
 
 export const setupTeacherHooks = (schema: Schema<ITeacher, ITeacherModel>) => {
