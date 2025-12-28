@@ -10,7 +10,6 @@ const studentSchema = new Schema<IStudent, IStudentModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'User reference is required'],
-      unique: true,
     },
     enrolledCourses: [
       {
@@ -34,6 +33,9 @@ const studentSchema = new Schema<IStudent, IStudentModel>(
       required: [true, 'Stage is required'],
       enum: EducationStage,
     },
+    parentPhone: {
+      Type: String,
+    }
   },
   {
     timestamps: true,

@@ -1,11 +1,11 @@
 import { Schema, Types } from 'mongoose';
-import { ITeacher, ITeacherModel } from './instructors.interface';
+import { IInstructor, IInstructorModel } from './instructor.interface';
 import { USER_EXCLUDED_FIELDS } from '../../shared/constants/selectedFields';
 import { Subject } from '../../shared/enums/subjects';
 
-export const setupTeacherMethods = (schema: Schema<ITeacher, ITeacherModel>) => {
+export const setupInstructorMethods = (schema: Schema<IInstructor, IInstructorModel>) => {
   // Instance methods
-  schema.methods.toSafeJSON = function (this: ITeacher) {
+  schema.methods.toSafeJSON = function (this: IInstructor) {
     const obj = this.toObject();
     
     const sensitiveFields = ['__v'];
@@ -18,7 +18,7 @@ export const setupTeacherMethods = (schema: Schema<ITeacher, ITeacherModel>) => 
     return obj;
   };
 
-  schema.methods.addCourse = async function (this: ITeacher, courseId: Types.ObjectId): Promise<void> {
+  schema.methods.addCourse = async function (this: IInstructor, courseId: Types.ObjectId): Promise<void> {
     if (!this.taughtCourses.includes(courseId)) {
       this.taughtCourses.push(courseId);
       await this.save();
@@ -26,11 +26,11 @@ export const setupTeacherMethods = (schema: Schema<ITeacher, ITeacherModel>) => 
   };
 
   // Static methods
-  schema.statics.findByUserId = async function (userId: string): Promise<ITeacher | null> {
+  schema.statics.findByUserId = async function (userId: string): Promise<IInstructor | null> {
     return this.findOne({ user: userId }).populate('user', USER_EXCLUDED_FIELDS);
   };
 
-  schema.statics.findBySubject = async function (subject: Subject): Promise<ITeacher[]> {
+  schema.statics.findBySubject = async function (subject: Subject): Promise<IInstructor[]> {
     return this.find({ subjects: { $in: [subject] } }).populate('user', USER_EXCLUDED_FIELDS);
   };
 };

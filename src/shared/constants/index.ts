@@ -19,7 +19,7 @@ export const PERMISSIONS = {
   MANAGE_USERS: 'manage_users',
   MANAGE_COURSES: 'manage_courses',
   VIEW_REPORTS: 'view_reports',
-  MANAGE_TEACHERS: 'manage_teachers',
+  MANAGE_INSTRUCTORS: 'manage_instructors',
   MANAGE_ADMINS: 'manage_admins',
   IT_SUPPORT: 'it_support',
 } as const;

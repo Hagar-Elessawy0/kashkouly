@@ -1,8 +1,8 @@
 import { Schema } from 'mongoose';
-import { ITeacher, ITeacherModel } from './instructors.interface';
+import { IInstructor, IInstructorModel } from './instructor.interface';
 import logger from '../../core/utils/logger';
 
-export const setupTeacherHooks = (schema: Schema<ITeacher, ITeacherModel>) => {
+export const setupInstructorHooks = (schema: Schema<IInstructor, IInstructorModel>) => {
   schema.pre('save', async function (next) {
     if (this.isModified('subjects')) {
       this.subjects = [...new Set(this.subjects)];
@@ -12,6 +12,6 @@ export const setupTeacherHooks = (schema: Schema<ITeacher, ITeacherModel>) => {
   });
 
   schema.post('save', function (doc) {
-    logger.info(`Teacher ${doc._id} saved successfully`);
+    logger.info(`Instructor ${doc._id} saved successfully`);
   });
 };

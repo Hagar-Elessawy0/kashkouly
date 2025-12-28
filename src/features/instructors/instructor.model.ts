@@ -1,16 +1,15 @@
 import mongoose, { Schema } from 'mongoose';
-import { ITeacher, ITeacherModel } from './instructors.interface';
-import { setupTeacherMethods } from './instructors.methods';
-import { setupTeacherHooks } from './instructors.hooks';
+import { IInstructor, IInstructorModel } from './instructor.interface';
+import { setupInstructorMethods } from './instructor.methods';
+import { setupInstructorHooks } from './instructor.hooks';
 import { Subject } from '../../shared/enums/subjects';
 
-const teacherSchema = new Schema<ITeacher, ITeacherModel>(
+const instructorSchema = new Schema<IInstructor, IInstructorModel>(
   {
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'User reference is required'],
-      unique: true,
     },
     bio: {
       type: String,
@@ -32,7 +31,7 @@ const teacherSchema = new Schema<ITeacher, ITeacherModel>(
         validator: function (value: string[]) {
           return Array.isArray(value) && value.length > 0;
         },
-        message: 'Teacher must have at least one subject',
+        message: 'Instructor must have at least one subject',
       },
     },
   },
@@ -45,10 +44,10 @@ const teacherSchema = new Schema<ITeacher, ITeacherModel>(
   }
 );
 
-teacherSchema.index({ user: 1 }, { unique: true });
-teacherSchema.index({ subjects: 1 });
+instructorSchema.index({ user: 1 }, { unique: true });
+instructorSchema.index({ subjects: 1 });
 
-setupTeacherMethods(teacherSchema);
-setupTeacherHooks(teacherSchema);
+setupInstructorMethods(instructorSchema);
+setupInstructorHooks(instructorSchema);
 
-export const Teacher = mongoose.model<ITeacher, ITeacherModel>('Teacher', teacherSchema);
+export const Instructor = mongoose.model<IInstructor, IInstructorModel>('Instructor', instructorSchema);

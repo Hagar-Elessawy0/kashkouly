@@ -10,7 +10,6 @@ const adminSchema = new Schema<IAdmin, IAdminModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'User reference is required'],
-      unique: true,
     },
     permissions: {
       type: [{
