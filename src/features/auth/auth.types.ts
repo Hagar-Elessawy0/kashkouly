@@ -1,11 +1,28 @@
 import { UserRole } from '../../shared/enums/userRole';
 import { IAvatar } from '../users/user.interface';
+import { EducationStage } from '../../shared/enums/educationStage';
+import { Subject } from '../../shared/enums/subjects';
+import { Permission } from '../../shared/constants';
 
 export interface RegisterDTO {
   name: string;
   email: string;
   password: string;
   role?: UserRole;
+}
+
+export interface CreateStudentDTO {
+  stage: EducationStage;
+  parentPhone?: string;
+}
+
+export interface CreateInstructorDTO {
+  bio: string;
+  subjects: Subject[];
+}
+
+export interface CreateAdminDTO {
+  permissions: Permission[];
 }
 
 export interface LoginDTO {
@@ -44,8 +61,24 @@ export interface AuthResponse {
 }
 
 export interface RegisterResponse {
-  message: string;
   userId: string;
-  accessToken: string;
-  refreshToken: string;
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+export interface RegisterStudentResponse extends RegisterResponse {
+  studentId: string;
+  message: string;
+}
+
+export interface RegisterInstructorResponse {
+  userId: string;
+  instructorId: string;
+  message: string;
+}
+
+export interface RegisterAdminResponse {
+  userId: string;
+  adminId: string;
+  message: string;
 }

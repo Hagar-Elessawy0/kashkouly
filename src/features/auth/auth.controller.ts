@@ -4,22 +4,66 @@ import { sendSuccessResponse } from '../../core/utils/response';
 import { HTTP_STATUS } from '../../shared/constants';
 import { config } from '../../config';
 import asyncHandler from 'express-async-handler';
+import { CreateInstructorDTO, CreateStudentDTO, CreateAdminDTO } from './auth.types';
+import { UserRole } from '../../shared/enums/userRole';
 
 const authService = new AuthService();
 
 export class AuthController {
-  static register = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const result = await authService.register(req.body);
+  static registerStudent = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const studentData : CreateStudentDTO = {
+      stage: req.body.stage,
+      parentPhone: req.body.parentPhone
+    };
 
-    res.setHeader('Authorization', result.accessToken);
-    res.cookie('refreshToken', result.refreshToken, {
+    const userData = {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      role: UserRole.STUDENT
+    };
+    const result = await authService.registerStudent(studentData, userData);
+
+    res.setHeader('Authorization', result.accessToken as string);
+    res.cookie('refreshToken', result.refreshToken as string, {
       httpOnly: true,
       secure: config.env === 'production',
       sameSite: config.env === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    sendSuccessResponse(res, HTTP_STATUS.CREATED, result.message, { userId: result.userId });
+    sendSuccessResponse(res, HTTP_STATUS.CREATED, result.message, { userId: result.userId, studentId: result.studentId });
+  });
+
+  static registerInstructor = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const instructorData : CreateInstructorDTO = {
+      bio: req.body.bio,
+      subjects: req.body.subjects,
+    };
+
+    const userData = {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      role: UserRole.INSTRUCTOR
+    };
+    const result = await authService.registerInstructor(instructorData, userData);
+    sendSuccessResponse(res, HTTP_STATUS.CREATED, result.message, { userId: result.userId, instructorId: result.instructorId });
+  });
+
+  static registerAdmin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const adminData : CreateAdminDTO = {
+      permissions: req.body.permissions
+    };
+
+    const userData = {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      role: UserRole.ADMIN
+    };
+    const result = await authService.registerAdmin(adminData, userData);
+    sendSuccessResponse(res, HTTP_STATUS.CREATED, result.message, { userId: result.userId, adminId: result.adminId });
   });
 
   static login = asyncHandler(async (req: Request, res: Response): Promise<void> => {

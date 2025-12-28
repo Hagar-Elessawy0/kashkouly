@@ -1,5 +1,8 @@
 import { z } from 'zod';
 import { UserRole } from '../../shared/enums/userRole';
+import { EducationStage } from '../../shared/enums/educationStage';
+import { Subject } from '../../shared/enums/subjects';
+import { PERMISSIONS} from '../../shared/constants';
 
 export const registerSchema = z.object({
   body: z.object({
@@ -17,6 +20,31 @@ export const registerSchema = z.object({
     message: 'Passwords don\'t match',
     path: ['confirmPassword'],
   }),
+});
+
+export const createStudent = z.object({
+  body: z.object({
+    stage: z.nativeEnum(EducationStage),
+    parentPhone:
+      z.string()
+      .regex(/^[0-9]{10,15}$/, { 
+        message: 'Invalid phone number format' 
+      })
+      .optional(),
+  })
+});
+
+export const createInstructor = z.object({
+  body: z.object({
+    bio: z.string().trim(),
+    subjects: z.array(z.nativeEnum(Subject)).min(1, 'Instructor must have at least one subject'),
+  })
+});
+
+export const createAdmin = z.object({
+  body: z.object({
+    permissions: z.array(z.nativeEnum(PERMISSIONS)).min(1, 'Admin must have at least one permission'),
+  })
 });
 
 export const loginSchema = z.object({

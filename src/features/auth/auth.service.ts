@@ -9,10 +9,22 @@ import {
   verifyEmailVerificationToken,
 } from '../../core/utils/jwt';
 import { sendVerificationEmail, sendPasswordResetEmail, sendWelcomeEmail } from '../../core/utils/email';
-import { AuthResponse, RegisterDTO, LoginDTO, RegisterResponse } from './auth.types';
+import { 
+  AuthResponse,
+  RegisterDTO,
+  CreateStudentDTO,
+  LoginDTO,
+  RegisterResponse,
+  RegisterStudentResponse,
+  RegisterInstructorResponse,
+  CreateInstructorDTO,
+  RegisterAdminResponse,
+  CreateAdminDTO
+} from './auth.types';
 import { HTTP_STATUS } from '../../shared/constants';
 import { IUser } from '../users/user.interface';
 import { generateSecureToken, hashToken } from '../../core/utils/crypto';
+import { UserRole } from '../../shared/enums/userRole';
 
 export class AuthService {
   private async generateTokens(user: IUser): Promise<{ accessToken: string; refreshToken: string }> {
@@ -43,16 +55,72 @@ export class AuthService {
     const verificationToken = generateEmailVerificationToken(user.id.toString());
     await sendVerificationEmail(user.email, verificationToken);
 
-    const { accessToken, refreshToken } = await this.generateTokens(user);
-    user.refreshToken = refreshToken;
-    user.lastLogin = new Date();
-    await user.save();
+    let accessToken: string | undefined, refreshToken: string | undefined;
+    if (user.role === UserRole.STUDENT) {
+      const tokens = await this.generateTokens(user);
+      accessToken = tokens.accessToken;
+      refreshToken = tokens.refreshToken;
+      user.refreshToken = refreshToken;
+      user.lastLogin = new Date();
+      await user.save();
+    }
+
+    
 
     return {
-      message: 'Registration successful. Please check your email to verify your account.',
       userId: user.id.toString(),
       accessToken,
+      refreshToken
+    };
+  }
+
+  async registerStudent(studentData: CreateStudentDTO, userData: RegisterDTO): Promise<RegisterStudentResponse> {
+    const { userId, accessToken, refreshToken } = await this.register(userData);
+
+    const { Student } = await import('../students/student.model');
+    const student = await Student.create({
+      user: userId,
+      ...studentData,
+    });
+
+    return {
+      userId,
+      accessToken,
       refreshToken,
+      studentId: student.id.toString(),
+      message: 'Student registered successfully, check your email for verification',
+    };
+  }
+
+  async registerInstructor(instructorData: CreateInstructorDTO, userData: RegisterDTO): Promise<RegisterInstructorResponse> {
+    const { userId } = await this.register(userData);
+
+    const { Instructor } = await import('../instructors/instructor.model');
+    const instructor = await Instructor.create({
+      user: userId,
+      ...instructorData,
+    });
+
+    return {
+      userId,
+      instructorId: instructor.id.toString(),
+      message: 'Instructor registered successfully, check the email for verification',
+    };
+  }
+
+  async registerAdmin(adminData: CreateAdminDTO, userData: RegisterDTO): Promise<RegisterAdminResponse> {
+    const { userId } = await this.register(userData);
+
+    const { Admin } = await import('../admins/admin.model');
+    const student = await Admin.create({
+      user: userId,
+      ...adminData,
+    });
+
+    return {
+      userId,
+      adminId: student.id.toString(),
+      message: 'Admin registered successfully, check the email for verification',
     };
   }
 

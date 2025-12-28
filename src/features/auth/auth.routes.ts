@@ -5,6 +5,9 @@ import { authenticate } from '../../core/middlewares/auth';
 import { authLimiter, resendVerificationLimiter } from '../../core/middlewares/rateLimiter';
 import {
   registerSchema,
+  createStudent,
+  createInstructor,
+  createAdmin,
   loginSchema,
   refreshTokenSchema,
   verifyEmailSchema,
@@ -14,7 +17,9 @@ import {
 
 const router = Router();
 
-router.post('/register', authLimiter, validate(registerSchema), AuthController.register);
+router.post('/register/student', authLimiter, validate(registerSchema), validate(createStudent), AuthController.registerStudent);
+router.post('/register/instructor', authLimiter, validate(registerSchema), validate(createInstructor), AuthController.registerInstructor);
+router.post('/register/admin', authLimiter, validate(registerSchema), validate(createAdmin), AuthController.registerAdmin);
 router.post('/login', authLimiter, validate(loginSchema), AuthController.login);
 router.post('/refresh-token', validate(refreshTokenSchema), AuthController.refreshToken);
 router.post('/verify-email', validate(verifyEmailSchema), AuthController.verifyEmail);
