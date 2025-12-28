@@ -11,7 +11,7 @@ const startServer = async (): Promise<void> => {
     await connectDatabase();
 
     // Create Express app
-    const app = createApp();
+    const app = await createApp();
 
     // Create HTTP server
     const server = http.createServer(app);

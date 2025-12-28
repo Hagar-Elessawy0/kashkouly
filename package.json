@@ -11,12 +11,12 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "swagger:generate": "ts-node scripts/generate-swagger.ts"
+    "test:coverage": "jest --coverage"
   },
   "author": "Hagar Elessawy",
   "license": "ISC",
   "dependencies": {
+    "@apidevtools/swagger-parser": "^12.1.0",
     "bcrypt": "^5.1.1",
     "cloudinary": "^1.41.0",
     "compression": "^1.7.4",
@@ -64,7 +64,6 @@
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "eslint": "^8.56.0",
-    "swagger-combine": "^1.4.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   }

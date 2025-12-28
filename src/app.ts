@@ -11,10 +11,10 @@ import morgan from 'morgan';
 import { morganStream } from './core/utils/logger';
 import { notFound } from './core/middlewares/notFound';
 import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
+import SwaggerParser from '@apidevtools/swagger-parser';
 import path from 'path';
 
-export const createApp = (): Application => {
+export const createApp = async (): Promise<Application> => {
   const app = express();
 
   // Security middleware
@@ -47,8 +47,9 @@ export const createApp = (): Application => {
   app.use(requestLogger);
 
   // Swagger documentation
-  const swaggerDocument = YAML.load(path.join(__dirname, '..', 'swagger', 'index.yaml'));
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+  const swaggerPath = path.join(__dirname, '..', 'swagger', 'openapi.yaml');
+  const swaggerDocument = await SwaggerParser.bundle(swaggerPath);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument as any, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'Kashkouly API Docs',
   }));

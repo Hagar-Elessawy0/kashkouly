@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  title: Educational Platform API
+  version: 1.0.0
+  description: |
+    Comprehensive API documentation for the Educational Platform backend server.
+
+    ## Authentication
+    Most endpoints require authentication via Bearer token in the Authorization header:
+    ```
+    Authorization: Bearer <your_access_token>
+    ```
+
+    ## Response Format
+    All responses follow a consistent structure:
+    - Success: `{ success: true, message: string, data?: any, meta: { timestamp: string, ... } }`
+    - Error: `{ success: false, message: string, error: { code: string, details?: any }, meta: { timestamp: string } }`
+  contact:
+    name: API Support
+    email: hagarbackend@gmail.com
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Development server
+  - url: https://api.kashkouly.com/api/v1
+    description: Production server
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User management endpoints
+security:
+  - BearerAuth: []
+paths:
+  /health:
+    $ref: ./routes/health.yaml#/~1health
+  /auth/register:
+    $ref: ./routes/authentication.yaml#/~1auth~1register
+  /auth/login:
+    $ref: ./routes/authentication.yaml#/~1auth~1login
+  /auth/refresh-token:
+    $ref: ./routes/authentication.yaml#/~1auth~1refresh-token
+  /auth/verify-email:
+    $ref: ./routes/authentication.yaml#/~1auth~1verify-email
+  /auth/resend-verification:
+    $ref: ./routes/authentication.yaml#/~1auth~1resend-verification
+  /auth/forgot-password:
+    $ref: ./routes/authentication.yaml#/~1auth~1forgot-password
+  /auth/reset-password:
+    $ref: ./routes/authentication.yaml#/~1auth~1reset-password
+  /auth/logout:
+    $ref: ./routes/authentication.yaml#/~1auth~1logout
+  /auth/profile:
+    $ref: ./routes/authentication.yaml#/~1auth~1profile
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token obtained from login or register endpoint
+  parameters:
+    PageQuery:
+      $ref: ./components.yaml#/parameters/PageQuery
+    LimitQuery:
+      $ref: ./components.yaml#/parameters/LimitQuery
+    IdPath:
+      $ref: ./components.yaml#/parameters/IdPath
+    TokenQuery:
+      $ref: ./components.yaml#/parameters/TokenQuery
+    RefreshTokenCookie:
+      $ref: ./components.yaml#/parameters/RefreshTokenCookie
+  schemas:
+    SuccessResponse:
+      $ref: ./components.yaml#/schemas/SuccessResponse
+    ErrorResponse:
+      $ref: ./components.yaml#/schemas/ErrorResponse
+    PaginationMeta:
+      $ref: ./components.yaml#/schemas/PaginationMeta
+    Avatar:
+      $ref: ./components.yaml#/schemas/Avatar
+    User:
+      $ref: ./components.yaml#/schemas/User
+    RegisterDTO:
+      $ref: ./components.yaml#/schemas/RegisterDTO
+    LoginDTO:
+      $ref: ./components.yaml#/schemas/LoginDTO
+    ForgotPasswordDTO:
+      $ref: ./components.yaml#/schemas/ForgotPasswordDTO
+    ResetPasswordDTO:
+      $ref: ./components.yaml#/schemas/ResetPasswordDTO
