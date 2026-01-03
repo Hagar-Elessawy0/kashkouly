@@ -13,6 +13,7 @@ import {
   verifyEmailSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  changePasswordSchema,
 } from './auth.validation';
 
 const router = Router();
@@ -27,6 +28,7 @@ router.post('/resend-verification', authenticate, resendVerificationLimiter, Aut
 router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), AuthController.forgotPassword);
 router.post('/reset-password', authLimiter, validate(resetPasswordSchema), AuthController.resetPassword);
 router.post('/logout', authenticate, AuthController.logout);
+router.patch('/change-password', authenticate, authLimiter, validate(changePasswordSchema), AuthController.changePassword);
 router.get('/profile', authenticate, AuthController.getProfile);
 
 export { router as authRoutes };

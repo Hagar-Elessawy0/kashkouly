@@ -9,7 +9,7 @@ import {
   verifyEmailVerificationToken,
 } from '../../core/utils/jwt';
 import { sendVerificationEmail, sendPasswordResetEmail, sendWelcomeEmail } from '../../core/utils/email';
-import { 
+import {
   AuthResponse,
   RegisterDTO,
   CreateStudentDTO,
@@ -19,7 +19,8 @@ import {
   RegisterInstructorResponse,
   CreateInstructorDTO,
   RegisterAdminResponse,
-  CreateAdminDTO
+  CreateAdminDTO,
+  ChangePasswordDTO
 } from './auth.types';
 import { HTTP_STATUS } from '../../shared/constants';
 import { IUser } from '../users/user.interface';
@@ -65,7 +66,7 @@ export class AuthService {
       await user.save();
     }
 
-    
+
 
     return {
       userId: user.id.toString(),
@@ -226,7 +227,7 @@ export class AuthService {
     if (user) {
       const resetToken = generateSecureToken();
       const hashedToken = hashToken(resetToken);
-      const expiry = Date.now() + 60 * 60 * 1000; 
+      const expiry = Date.now() + 60 * 60 * 1000;
 
       user.passwordReset = {
         token: hashedToken,
@@ -269,5 +270,22 @@ export class AuthService {
     await user!.save();
 
     return { message: 'Logged out successfully' };
+  }
+
+  async changePassword(userId: string, data: ChangePasswordDTO): Promise<{ message: string }> {
+    const user = await User.findById(userId).select('+password +refreshToken');
+
+    const isPasswordValid = await user!.comparePassword(data.currentPassword);
+    if (!isPasswordValid) {
+      throw new AppError('Invalid current password', HTTP_STATUS.UNAUTHORIZED, ErrorCodes.INVALID_CREDENTIALS);
+    }
+
+    user!.password = data.newPassword;
+    user!.refreshToken = undefined;
+    user!.tokenVersion += 1;
+
+    await user!.save();
+
+    return { message: 'Password updated successfully. Please log in again.' };
   }
 }

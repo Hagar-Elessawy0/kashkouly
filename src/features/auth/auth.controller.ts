@@ -11,7 +11,7 @@ const authService = new AuthService();
 
 export class AuthController {
   static registerStudent = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const studentData : CreateStudentDTO = {
+    const studentData: CreateStudentDTO = {
       stage: req.body.stage,
       parentPhone: req.body.parentPhone
     };
@@ -36,7 +36,7 @@ export class AuthController {
   });
 
   static registerInstructor = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const instructorData : CreateInstructorDTO = {
+    const instructorData: CreateInstructorDTO = {
       bio: req.body.bio,
       subjects: req.body.subjects,
     };
@@ -52,7 +52,7 @@ export class AuthController {
   });
 
   static registerAdmin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const adminData : CreateAdminDTO = {
+    const adminData: CreateAdminDTO = {
       permissions: req.body.permissions
     };
 
@@ -86,7 +86,7 @@ export class AuthController {
     res.setHeader('Authorization', `Bearer ${result.accessToken}`);
     sendSuccessResponse(res, HTTP_STATUS.OK, 'Token refreshed successfully and new access token sent in headers');
   });
-  
+
   static verifyEmail = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { token } = req.query;
     const result = await authService.verifyEmail(token as string);
@@ -120,5 +120,18 @@ export class AuthController {
 
   static getProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     sendSuccessResponse(res, HTTP_STATUS.OK, 'Profile retrieved successfully', req.user);
+  });
+
+  static changePassword = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    const result = await authService.changePassword(userId, req.body);
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: config.env === 'production',
+      sameSite: config.env === 'production' ? 'none' : 'lax',
+    });
+
+    sendSuccessResponse(res, HTTP_STATUS.OK, result.message);
   });
 }

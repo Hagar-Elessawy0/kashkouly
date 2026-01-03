@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { UserRole } from '../../shared/enums/userRole';
 import { EducationStage } from '../../shared/enums/educationStage';
 import { Subject } from '../../shared/enums/subjects';
-import { PERMISSIONS} from '../../shared/constants';
+import { PERMISSIONS } from '../../shared/constants';
 
 export const registerSchema = z.object({
   body: z.object({
@@ -27,10 +27,10 @@ export const createStudent = z.object({
     stage: z.nativeEnum(EducationStage),
     parentPhone:
       z.string()
-      .regex(/^[0-9]{10,15}$/, { 
-        message: 'Invalid phone number format' 
-      })
-      .optional(),
+        .regex(/^[0-9]{10,15}$/, {
+          message: 'Invalid phone number format'
+        })
+        .optional(),
   })
 });
 
@@ -86,5 +86,24 @@ export const resetPasswordSchema = z.object({
     confirmNewPassword: z.string(),
   }).refine((data) => data.newPassword === data.confirmNewPassword, {
     message: 'Passwords don\'t match',
+  }),
+});
+
+export const changePasswordSchema = z.object({
+  body: z.object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one number'),
+    confirmPassword: z.string().min(1, 'Confirm password is required'),
+  }).refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'New password and confirm password must match',
+    path: ['confirmPassword'],
+  }).refine((data) => data.currentPassword !== data.newPassword, {
+    message: 'New password must be different from current password',
+    path: ['newPassword'],
   }),
 });
