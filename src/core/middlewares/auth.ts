@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../errors/appError';
 import { ErrorCodes } from '../errors/errorCodes';
-import { HTTP_STATUS } from '../../shared/constants';
+import { HTTP_STATUS, Permission } from '../../shared/constants';
 import { verifyAccessToken } from '../utils/jwt';
 import { UserRole } from '../../shared/enums/userRole';
 import { User } from '../../features/users/user.model';
+import { Admin } from '../../features/admins/admin.model';
 
 const extractToken = (req: Request): string => {
   const authHeader = req.headers.authorization;
@@ -68,15 +69,15 @@ export const authenticate = async (
 
     const decoded = verifyAccessToken(token);
 
-    const user = await User.findOne({ _id: decoded.id , deletedAt: { $exists: false }})
-        .select('+refreshToken +tokenVersion +isBanned +deletedAt')
-        .orFail(() => {
-          throw new AppError(
-            'User not found',
-            HTTP_STATUS.UNAUTHORIZED,
-            ErrorCodes.UNAUTHORIZED
-          );
-        });
+    const user = await User.findOne({ _id: decoded.id, deletedAt: { $exists: false } })
+      .select('+refreshToken +tokenVersion +isBanned +deletedAt')
+      .orFail(() => {
+        throw new AppError(
+          'User not found',
+          HTTP_STATUS.UNAUTHORIZED,
+          ErrorCodes.UNAUTHORIZED
+        );
+      });
 
     validateUserState(user, decoded);
 
@@ -88,19 +89,34 @@ export const authenticate = async (
   }
 };
 
-export const authorize = (...roles: UserRole[]) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+export const authorize = (roles: UserRole[], permissions?: Permission[]) => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const userRole = req.user!.role as UserRole;
 
-    if (!req.user) {
-      throw new AppError('Unauthorized access', HTTP_STATUS.UNAUTHORIZED, ErrorCodes.UNAUTHORIZED);
-    }
-
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(userRole)) {
       throw new AppError(
         'You do not have permission to perform this action',
         HTTP_STATUS.FORBIDDEN,
         ErrorCodes.FORBIDDEN
       );
+    }
+
+    if (userRole === UserRole.SUPER_ADMIN) {
+      return next();
+    }
+
+    if (userRole === UserRole.ADMIN && permissions && permissions.length > 0) {
+      const admin_user = await Admin.findByUserId(req.user!.id);
+
+      const hasPermission = admin_user?.hasAnyPermission(permissions);
+
+      if (!hasPermission) {
+        throw new AppError(
+          'You do not have permission to perform this action',
+          HTTP_STATUS.FORBIDDEN,
+          ErrorCodes.FORBIDDEN
+        );
+      }
     }
 
     next();

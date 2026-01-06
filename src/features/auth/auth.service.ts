@@ -177,7 +177,7 @@ export class AuthService {
       throw new AppError('Invalid refresh token', HTTP_STATUS.UNAUTHORIZED, ErrorCodes.TOKEN_INVALID);
     }
 
-    const accessToken = await generateAccessToken({
+    const accessToken = generateAccessToken({
       id: user!.id.toString(),
       email: user!.email,
       role: user!.role,

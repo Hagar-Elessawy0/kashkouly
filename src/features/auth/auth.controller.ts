@@ -83,7 +83,7 @@ export class AuthController {
   static refreshToken = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const refreshToken = req.cookies.refreshToken;
     const result = await authService.refreshToken(refreshToken);
-    res.setHeader('Authorization', `Bearer ${result.accessToken}`);
+    res.setHeader('Authorization', result.accessToken);
     sendSuccessResponse(res, HTTP_STATUS.OK, 'Token refreshed successfully and new access token sent in headers');
   });
 
