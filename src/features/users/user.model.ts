@@ -3,7 +3,7 @@ import { UserRole } from '../../shared/enums/userRole';
 import { IUser, IAvatar, IResetPassword } from './user.interface';
 import { config } from '../../config';
 import { setupUserHooks } from './user.hooks';
-import { setupUserMethods } from  './user.methods';
+import { setupUserMethods } from './user.methods';
 
 const AvatarSchema = new Schema<IAvatar>(
   {

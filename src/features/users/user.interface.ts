@@ -29,3 +29,41 @@ export interface IResetPassword {
   token: string;
   expires: Date;
 }
+
+export interface UpdateUserDTO {
+  name?: string;
+  avatar?: IAvatar;
+  email?: string;
+}
+
+export interface UserQueryDTO {
+  page?: number;
+  limit?: number;
+  role?: UserRole;
+  isEmailVerified?: boolean;
+  isBanned?: boolean;
+  search?: string;
+}
+
+export interface UserResponseDTO {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  isEmailVerified: boolean;
+  isBanned: boolean;
+  avatar: IAvatar;
+  lastLogin?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UsersListResponse {
+  users: UserResponseDTO[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}

@@ -59,7 +59,7 @@ export const config = {
     urlencoded: process.env.BODY_LIMIT_URLENCODED || '10mb',
   },
 
-  path:{
+  path: {
     default_avatar: 'https://res.cloudinary.com/dvlao566z/image/upload/v1760871735/default-user-avatar_wreuts.png',
   }
 };

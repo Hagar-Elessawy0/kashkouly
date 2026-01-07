@@ -14,4 +14,8 @@ export const setupUserHooks = (schema: Schema<IUser>) => {
       next(error);
     }
   });
+
+  schema.pre('find', function() {
+    this.where({ deletedAt: null });
+  });
 };

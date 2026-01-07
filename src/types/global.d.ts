@@ -12,6 +12,8 @@ declare global {
         isEmailVerified: boolean;
         isBanned: boolean;
       };
+      file?: UploadedFile;
+      files?: UploadedFile[] | { [fieldname: string]: UploadedFile[] };
     }
   }
 }
