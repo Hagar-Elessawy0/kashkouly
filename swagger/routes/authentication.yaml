@@ -412,3 +412,79 @@
           application/json:
             schema:
               $ref: ../components.yaml#/schemas/ErrorResponse
+/auth/change-password:
+  patch:
+    tags:
+      - Authentication
+    summary: Change user password
+    description: Allows authenticated users to change their password by providing the current password and a new secure password. All existing refresh tokens will be invalidated.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - currentPassword
+              - newPassword
+              - confirmPassword
+            properties:
+              currentPassword:
+                type: string
+                format: password
+                description: Current user password for verification
+                example: "OldPassword123!"
+              newPassword:
+                type: string
+                format: password
+                description: New secure password (must be different from current)
+                example: "NewSecurePassword123!"
+              confirmPassword:
+                type: string
+                format: password
+                description: Confirmation of the new password
+                example: "NewSecurePassword123!"
+    responses:
+      '200':
+        description: Password updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yaml#/schemas/SuccessResponse'
+            example:
+              success: true
+              message: "Password updated successfully. Please log in again."
+              meta:
+                timestamp: "2023-10-27T10:00:00Z"
+      '400':
+        description: Validation error or same password reuse
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yaml#/schemas/ErrorResponse'
+      '401':
+        description: Unauthorized - Invalid current password or token
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yaml#/schemas/ErrorResponse'
+      '403':
+        description: Forbidden - Account banned
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yaml#/schemas/ErrorResponse'
+      '429':
+        description: Too many requests
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yaml#/schemas/ErrorResponse'
+      '500':
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yaml#/schemas/ErrorResponse'

@@ -53,6 +53,14 @@ paths:
     $ref: ./routes/authentication.yaml#/~1auth~1logout
   /auth/profile:
     $ref: ./routes/authentication.yaml#/~1auth~1profile
+  /auth/change-password:
+    $ref: ./routes/authentication.yaml#/~1auth~1change-password
+  /users/me:
+    $ref: ./routes/users.yaml#/~1users~1me
+  /users/{id}:
+    $ref: ./routes/users.yaml#/~1users~1{id}
+  /users:
+    $ref: ./routes/users.yaml#/~1users
 components:
   securitySchemes:
     BearerAuth:
@@ -90,3 +98,5 @@ components:
       $ref: ./components.yaml#/schemas/ForgotPasswordDTO
     ResetPasswordDTO:
       $ref: ./components.yaml#/schemas/ResetPasswordDTO
+    UpdateUserDTO:
+      $ref: ./components.yaml#/schemas/UpdateUserDTO

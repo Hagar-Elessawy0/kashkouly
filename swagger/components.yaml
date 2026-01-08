@@ -255,3 +255,51 @@ schemas:
     required:
       - newPassword
       - confirmNewPassword
+  UpdateUserDTO:
+    type: object
+    properties:
+      name:
+        type: string
+        minLength: 2
+        maxLength: 50
+        example: John Doe
+      email:
+        type: string
+        format: email
+        example: john.doe@example.com
+      avatar:
+        type: string
+        format: binary
+        description: User profile picture (image file)
+    description: All fields are optional
+responses:
+  BadRequest:
+    description: Invalid input or validation error
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/ErrorResponse'
+  Unauthorized:
+    description: Authentication failed or token missing
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/ErrorResponse'
+  Forbidden:
+    description: Insufficient permissions
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/ErrorResponse'
+  NotFound:
+    description: Requested resource not found
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/ErrorResponse'
+  InternalServerError:
+    description: Unexpected server error
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/ErrorResponse'

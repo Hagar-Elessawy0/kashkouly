@@ -1,0 +1,117 @@
+/users/me:
+  patch:
+    tags:
+      - Users
+    summary: Update current user profile
+    description: Update the authenticated user's name, email, or avatar.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            $ref: '../components.yaml#/schemas/UpdateUserDTO'
+    responses:
+      '200':
+        description: Profile updated successfully
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../components.yaml#/schemas/SuccessResponse'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '../components.yaml#/schemas/User'
+      '400':
+        $ref: '../components.yaml#/responses/BadRequest'
+      '401':
+        $ref: '../components.yaml#/responses/Unauthorized'
+
+/users/{id}:
+  get:
+    tags:
+      - Users
+    summary: Get user by ID
+    description: Retrieve detailed information about a specific user. (Admin only)
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components.yaml#/parameters/IdPath'
+    responses:
+      '200':
+        description: User retrieved successfully
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../components.yaml#/schemas/SuccessResponse'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '../components.yaml#/schemas/User'
+      '404':
+        $ref: '../components.yaml#/responses/NotFound'
+
+  patch:
+    tags:
+      - Users
+    summary: Toggle user status (Ban/Unban)
+    description: Change the status of a user. (Admin only)
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components.yaml#/parameters/IdPath'
+    responses:
+      '200':
+        description: User status changed successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yaml#/schemas/SuccessResponse'
+
+/users:
+  get:
+    tags:
+      - Users
+    summary: Get all users
+    description: Retrieve a paginated list of all users with optional filtering. (Admin only)
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components.yaml#/parameters/PageQuery'
+      - $ref: '../components.yaml#/parameters/LimitQuery'
+      - name: role
+        in: query
+        schema:
+          type: string
+          enum: [admin, instructor, student]
+      - name: isEmailVerified
+        in: query
+        schema:
+          type: boolean
+      - name: isBanned
+        in: query
+        schema:
+          type: boolean
+      - name: search
+        in: query
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Users retrieved successfully
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../components.yaml#/schemas/SuccessResponse'
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '../components.yaml#/schemas/User'
+                    meta:
+                      $ref: '../components.yaml#/schemas/PaginationMeta'
