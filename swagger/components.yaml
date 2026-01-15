@@ -272,6 +272,76 @@ schemas:
         format: binary
         description: User profile picture (image file)
     description: All fields are optional
+  EducationStage:
+    type: string
+    enum:
+      - primary
+      - secondary
+      - higher
+    example: secondary
+  Student:
+    type: object
+    properties:
+      id:
+        type: string
+        example: 507f1f77bcf86cd799439011
+      user:
+        type: object
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+          email:
+            type: string
+          isEmailVerified:
+            type: boolean
+          avatar:
+            $ref: '#/schemas/Avatar'
+      stage:
+        $ref: '#/schemas/EducationStage'
+      enrolledCourses:
+        type: array
+        items:
+          type: string
+      grades:
+        type: object
+        additionalProperties:
+          type: number
+      progress:
+        type: number
+        minimum: 0
+        maximum: 100
+      parentPhone:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - id
+      - user
+      - stage
+      - createdAt
+      - updatedAt
+  UpdateStudentProfileDTO:
+    type: object
+    properties:
+      stage:
+        $ref: '#/schemas/EducationStage'
+      parentPhone:
+        type: string
+  StudentList:
+    type: object
+    properties:
+      students:
+        type: array
+        items:
+          $ref: '#/schemas/Student'
+      pagination:
+        $ref: '#/schemas/PaginationMeta'
 responses:
   BadRequest:
     description: Invalid input or validation error

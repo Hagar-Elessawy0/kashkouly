@@ -1,0 +1,127 @@
+/students/me:
+  get:
+    tags:
+      - Students
+    summary: Get my student profile
+    description: Retrieve the profile of the currently authenticated student.
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: Student profile retrieved successfully
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../components.yaml#/schemas/SuccessResponse'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '../components.yaml#/schemas/Student'
+      '401':
+        $ref: '../components.yaml#/responses/Unauthorized'
+      '403':
+        $ref: '../components.yaml#/responses/Forbidden'
+
+  patch:
+    tags:
+      - Students
+    summary: Update my student profile
+    description: Update the profile information for the currently authenticated student.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components.yaml#/schemas/UpdateStudentProfileDTO'
+    responses:
+      '200':
+        description: Student profile updated successfully
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../components.yaml#/schemas/SuccessResponse'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '../components.yaml#/schemas/Student'
+      '400':
+        $ref: '../components.yaml#/responses/BadRequest'
+      '401':
+        $ref: '../components.yaml#/responses/Unauthorized'
+      '403':
+        $ref: '../components.yaml#/responses/Forbidden'
+
+/students/{id}:
+  get:
+    tags:
+      - Students
+    summary: Get student by ID
+    description: Retrieve detailed information about a specific student. (Admin only)
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components.yaml#/parameters/IdPath'
+    responses:
+      '200':
+        description: Student retrieved successfully
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../components.yaml#/schemas/SuccessResponse'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '../components.yaml#/schemas/Student'
+      '401':
+        $ref: '../components.yaml#/responses/Unauthorized'
+      '403':
+        $ref: '../components.yaml#/responses/Forbidden'
+      '404':
+        $ref: '../components.yaml#/responses/NotFound'
+
+/students:
+  get:
+    tags:
+      - Students
+    summary: Get all students
+    description: Retrieve a paginated list of all students with optional filtering. (Admin only)
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components.yaml#/parameters/PageQuery'
+      - $ref: '../components.yaml#/parameters/LimitQuery'
+      - name: stage
+        in: query
+        description: Filter by education stage
+        schema:
+          $ref: '../components.yaml#/schemas/EducationStage'
+      - name: search
+        in: query
+        description: Search by name or email
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Students retrieved successfully
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../components.yaml#/schemas/SuccessResponse'
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '../components.yaml#/schemas/Student'
+                    meta:
+                      $ref: '../components.yaml#/schemas/PaginationMeta'
+      '401':
+        $ref: '../components.yaml#/responses/Unauthorized'
+      '403':
+        $ref: '../components.yaml#/responses/Forbidden'

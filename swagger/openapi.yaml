@@ -30,6 +30,8 @@ tags:
     description: User authentication and authorization
   - name: Users
     description: User management endpoints
+  - name: Students
+    description: Student management endpoints
 security:
   - BearerAuth: []
 paths:
@@ -61,6 +63,12 @@ paths:
     $ref: ./routes/users.yaml#/~1users~1{id}
   /users:
     $ref: ./routes/users.yaml#/~1users
+  /students/me:
+    $ref: ./routes/students.yaml#/~1students~1me
+  /students/{id}:
+    $ref: ./routes/students.yaml#/~1students~1{id}
+  /students:
+    $ref: ./routes/students.yaml#/~1students
 components:
   securitySchemes:
     BearerAuth:
@@ -100,3 +108,11 @@ components:
       $ref: ./components.yaml#/schemas/ResetPasswordDTO
     UpdateUserDTO:
       $ref: ./components.yaml#/schemas/UpdateUserDTO
+    EducationStage:
+      $ref: ./components.yaml#/schemas/EducationStage
+    Student:
+      $ref: ./components.yaml#/schemas/Student
+    UpdateStudentProfileDTO:
+      $ref: ./components.yaml#/schemas/UpdateStudentProfileDTO
+    StudentList:
+      $ref: ./components.yaml#/schemas/StudentList
